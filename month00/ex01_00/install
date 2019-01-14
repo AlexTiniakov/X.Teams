@@ -1,1 +1,25 @@
-1.
+#install all required dependencies
+1. sudo apt install git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev jq 
+
+#downloading source code and selecting a Bitcoin Core Release
+2. git clone https://github.com/bitcoin/bitcoin.git
+3. cd bitcoin
+4. git tag
+#choose the latest wersion without any suffix
+5. git checkout v0.17.1
+#check out
+6. git status
+
+#installing DB
+7. ./contrib/install_db4.sh $(pwd)
+
+#generating a set of build scripts
+8. ./autogen.sh
+
+#creating the customized build scripts
+9. export BDB_PREFIX=$(pwd)/db4
+10. ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic --enable-upnp-default
+
+#installing bitcoind
+11. make
+12. sudo make install
