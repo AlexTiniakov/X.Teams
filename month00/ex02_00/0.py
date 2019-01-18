@@ -1,9 +1,11 @@
 from goto import with_goto
-#from itertools import compress, product, chain, combinations
 import itertools
+import primefac
 
 def primfacs(n):
-    i = 2
+    factors = list( primefac.primefac(n) )
+    return factors
+    '''    i = 2
     primfac = []
     
     if (n == 1 or n == 0):
@@ -17,7 +19,7 @@ def primfacs(n):
         i = i + 1
     if n > 1:
         primfac.append(n)
-    return primfac
+    return primfac '''
 
 @with_goto
 def par(up, down):
@@ -67,15 +69,18 @@ def c(n, m):
     #return up / down
 
 def combinations(s):
+    buf1 = [[1]]
     rez = []
     for i in range(1,len(s)+1):
            rez.extend(list(itertools.combinations(s,i)))
     rez = list(set(rez))
     rez.sort(key=len)
-    for i in range(0, len(rez)):
-        list(rez[i]).sort()
-        print(rez[i])
-    return set(rez)
+    for i in rez:
+        buf = list(i)
+        buf.sort()
+        if buf not in buf1:
+            buf1.append(buf)
+    return buf1
     
 def binom(N):
     rez = []
@@ -85,6 +90,26 @@ def binom(N):
             rez.append(j)
     return combinations(rez)
 
-#print(primfacs(8))
-print(binom(5))
+def sum1(buf):
+    b = 0
+    for i in buf:
+        a = 1
+        for j in i:
+            a *= j
+            a %= 10 ** 10
+        b += a
+        b %= 10 ** 10
+    return b
+
+def binom1(N):
+    rez = []
+    suma = 0
+    for i in range(1, N + 1):
+        buf = binom(i)
+        print(suma)
+        suma += sum1(buf)
+        suma %= 10 ** 10
+    return suma
+        
+print(binom1(8))
 
