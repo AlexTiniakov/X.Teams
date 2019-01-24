@@ -1,0 +1,29 @@
+class Serializer(object):
+
+    def __init__(self, tr):
+        self.ser = self.add_zero(hex(int(tr.amount))[2:], 4)
+        self.ser += self.add_zero(tr.sender, 35)
+        self.ser += self.add_zero(tr.recipient, 35)
+        self.ser += self.add_zero(tr.pubkey_sig, 128)
+        self.ser += str(tr.sig)
+    
+    def add_zero(self, buf, nb):
+        while len(buf) < nb:
+            buf = '0' + buf
+        return buf
+
+class Deserializer():
+
+    def del_zero(self, buf):
+        while buf[0]=='0':
+            buf = buf[1:]
+        return buf
+
+    def __init__(self, ser):
+        trx = []
+        trx.append(self.del_zero(ser[0:4]))
+        trx.append(self.del_zero(ser[4:39]))
+        trx.append(self.del_zero(ser[39:74]))
+        trx.append(self.del_zero(ser[74:202]))
+        trx.append(self.del_zero(ser[202:]))
+        return trx
