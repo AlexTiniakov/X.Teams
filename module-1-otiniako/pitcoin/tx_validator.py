@@ -4,16 +4,22 @@ import hashlib
 def verify_addr(addr):
     base58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
     if len(addr) > 35 or len(addr) < 26:
+        print('Error: Wrong addr')
         return False
     for c in addr:
         if c not in base58:
+            print('Error: Wrong addr')
             return False
     if addr[0] != '1' and addr[0] != '3':
+        print('Error: Wrong addr')
         return False
     return True
 
 def verify_pubkey_addr(addr, pubkey):
+    #print('addr:   ', addr)
+    #print('bupkey: ', '04' + pubkey)
     if addr_from_pubkey('04' + pubkey) != addr:
+        print('Error: Wrong pubkey')
         return False
     return True
 
@@ -21,9 +27,11 @@ def check_amount(amount):
     try:
         amount = float(amount)
     except ValueError:
+        print('Error: Wrong amount')
         return False
     if amount > 0 and amount < 21*10**6:
         return True
+    print('Error: Wrong amount')
     return False
 
 def hash(trx):

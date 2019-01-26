@@ -1,7 +1,7 @@
 class Serializer(object):
 
     def __init__(self, tr):
-        self.ser = self.add_zero(hex(int(tr.amount))[2:], 4)
+        self.ser = self.add_zero(tr.amount, 4)
         self.ser += self.add_zero(tr.sender, 35)
         self.ser += self.add_zero(tr.recipient, 35)
         self.ser += self.add_zero(tr.pubkey_sig, 128)

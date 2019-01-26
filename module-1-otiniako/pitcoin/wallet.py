@@ -115,9 +115,9 @@ def sign_message(privkey, message):
     sk = SigningKey.from_string(binascii.unhexlify(privkey), curve=SECP256k1)
     vk = sk.get_verifying_key()
     pubkey_sig = binascii.hexlify(vk.to_string()).decode('utf-8')
-    sig = binascii.hexlify(sk.sign(bytes(message, 'ascii')))
-    #print('sig  ', sig[2:len(sig)-2])
-    return sig, pubkey_sig
+    sig = str(binascii.hexlify(sk.sign(bytes(message, 'ascii'))))
+    #print('sig  ', sig)
+    return sig[2:-1], pubkey_sig
 
 def check_sig(pubkey_sig, sig, message):
     #print('check sig ', sig, '     ', len(sig))
@@ -129,6 +129,7 @@ def check_sig(pubkey_sig, sig, message):
         vk.verify(sig, bytes(message, 'ascii'))
         return True
     except BadSignatureError:
+        print('Error: Bad signature!')
         return False
 
 
