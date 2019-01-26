@@ -21,8 +21,8 @@ def get_from_mem():
         rez.append(i[:-2])
         if len(rez) == 3:
             break
-    #for i in range(len(rez)):
-    #    del(mem[0])
+    for i in range(len(rez)):
+        del(mem[0])
     for i in mem:
         f.write(i)
     f.close()

@@ -25,7 +25,7 @@ def verify_pubkey_addr(addr, pubkey):
 
 def check_amount(amount):
     try:
-        amount = float(amount)
+        amount = int(amount, 16)
     except ValueError:
         print('Error: Wrong amount')
         return False

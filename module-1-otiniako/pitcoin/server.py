@@ -14,22 +14,21 @@ class Pitcoin:
             return string
         except IndexError:
             return 'Usage: broadcast <serialized transaction>'
-        return pending_pool.assept(transaction)
 
     def get_transactions(self):
         return pending_pool.get_from_mem()
 
     def get_blocks(self):
-        blocks = []
         if os.path.isfile('chain/blocks.pk1'):
             with open('chain/blocks.pk1', 'rb') as input:
-                blocks.append(pickle.load(input))
-        return blocks
+                blocks = pickle.load(input)
+            return blocks
+        return []
         
 
-    def add_block(self, block):
+    def add_block(self, blocks):
         with open('chain/blocks.pk1', 'wb') as output:
-            pickle.dump(block, output, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(blocks, output, pickle.HIGHEST_PROTOCOL)
         print('block is added')
 '''
     def get_blocks(self):

@@ -7,17 +7,8 @@ class Blockchain(object):
     BLOCKCHAIN = []
 
     def __init__(self, addr):
-        self.info = []
         self.complexity = 2*8
-        try:
-            f = open('chain/blocks', 'r')
-            self.BLOCKCHAIN = f.readlines()
-            print(self.BLOCKCHAIN)
-            f.close()
-        except:
-            f = open('chain/blocks', 'a')
-            self.block_to_mine = self.genesis_block(addr)
-            print(self.block_to_mine.transactions)
+        self.g_block = self.genesis_block(addr)
 
 
     def mine(self):
@@ -62,7 +53,7 @@ class Blockchain(object):
         Block with only one CoinbaseTrascation and the zero value of the previous hash
         '''
         transactions = CoinbaseTransaction(addr, 50).ser
-        return Block('0'*64, [transactions.ser,])
+        return Block('0'*64, [transactions,])
 
     def submit_tx(self):
         '''

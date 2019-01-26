@@ -11,18 +11,12 @@ class Block(object):
     _complexity = 16
     
     def __init__(self, previous_hash, transactions):
-        self.hash_r = ''
-        self.timestamp = time.time()
-        self.nonse = 0
+        self.timestamp = str(time.time())
         self.previous_hash = previous_hash
         self.transactions = transactions
-        self.m_root = merkle_root(self.transactions)
-        print(self.m_root)
-        self.trx_ser = ''
-        for i in self.transactions:
-            self.trx_ser += i
-        self.header = self.previous_hash + self.m_root + self.timestamp +\
-        self.trx_ser
+        self.m_root = merkle_root(self.transactions.copy())[0]
+        #print(self.transactions)
+        
         #mining(self, _complexity)
         #self.add_to_chain()
 
@@ -37,13 +31,18 @@ class Block(object):
         return True
 
     def mining(self, complexity):
+        trx_ser = ''
+        for i in self.transactions:
+            trx_ser += i
+        header = self.previous_hash + self.m_root + self.timestamp + trx_ser
         max_nonce = 2**32
-        nonce = 0
         target = 2**(256-complexity)
         for nonse in range(max_nonce):
-            hash_rezult = hashlib.sha256(self.header.encode('utf-8') + str(nonce)).hexdigest()
+            #print(nonse)
+            hash_rezult = hashlib.sha256(header.encode('utf-8') + str(nonse).encode('utf-8')).hexdigest()
+            #print(hash_rezult)
             if int(hash_rezult, 16) < target:
-                self.hash_r = hash_rezult
+                self.hash_rez = hash_rezult
                 self.nonce = nonse
                 return True
         return False
