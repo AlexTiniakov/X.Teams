@@ -3,7 +3,21 @@ import pending_pool
 from transaction import Transaction, CoinbaseTransaction
 from serializer import Serializer
 
-class Blockchain():
+class Blockchain(object):
+
+    def __init__(self, addr):
+        self.info = []
+        self.complexity = 2*8
+        try:
+            f = open('chain/blocks', 'r')
+            self.BLOCKCHAIN = f.readlines()
+            #print(self.BLOCKCHAIN)
+            f.close()
+        except:
+            f = open('chain/blocks', 'a')
+            self.block_to_mine = self.genesis_block(addr)
+            print(self.block_to_mine.transactions)
+        self.g_block = self.genesis_block(addr)
 
     def mine(self, block):
         '''

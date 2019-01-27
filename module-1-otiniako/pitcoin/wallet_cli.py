@@ -9,9 +9,9 @@ import binascii
 from pending_pool import show_mem, get_from_mem
 import xmlrpc.client
 import requests
+from flask import json
 
 
-server = xmlrpc.client.Server('http://localhost:8000')
 class Wallet(cmd.Cmd):
     privkey_WIF = '0'
     
@@ -85,17 +85,23 @@ class Wallet(cmd.Cmd):
             print('Usage: send <% Recipient Address%>, <% Amount%>')
 
     def do_balance(self, line):
+        url     = 'http://127.0.0.1:5000/balance'
         if len(line) > 0:
-            print(server.get_balance(line))
+            payload = {"addr": line}
         else:
-            print(server.get_balance(self.addr))
+            payload = {"addr": self.addr}
+        headers = {"Content-Type": "application/json"}
+        res = requests.post(url, json=payload, headers=headers)
+        rez = json.loads(res.text)
+        print(rez['balance'])
 
     def do_broadcast(self, line):
         url     = 'http://127.0.0.1:5000/transaction/new'
-        payload = {"fransaction": line}
+        payload = {"transaction": line}
         headers = {"Content-Type": "application/json"}
         res = requests.post(url, json=payload, headers=headers)
-        print(res.text)
+        rez = json.loads(res.text)
+        print(rez['success'])
     '''
             try:
                 print(server.broadcast(line))

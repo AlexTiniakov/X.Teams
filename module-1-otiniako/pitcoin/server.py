@@ -6,37 +6,79 @@ import pending_pool
 import pickle
 import os
 import json
-import requests
-from flask import Flask, request
-
 import time
 import hashlib as hasher
-import json
-import requests
 import base64
-from flask import Flask
-from flask import request
+import flask
+from flask import Flask, request, json, jsonify
 from multiprocessing import Process, Pipe
 import ecdsa
+from pending_pool import assept
 
 node = Flask(__name__)
 node.config['DEBUG'] = True
 
+@node.route('/', methods=['GET', 'POST'])
+def home():
+    return 'Ok'
+
 @node.route('/transaction/new', methods=['POST'])
-def broadcast(self):
-    print('ok')
-    new_txion = request.get_json()
-    print(new_txion)
+def broadcast():
+    #print(request.is_json)
+    new_txion = request.get_json()['transaction']
+    if assept(new_txion):
+        return jsonify({'success': True}), 201
+    else:
+        return jsonify({'success': False}), 201
+
+@node.route('/balance', methods=['POST'])
+def get_balance():
+        balance = 0
+        addr = request.get_json()['addr']
+        if os.path.isfile('chain/blocks.pk1'):
+            with open('chain/blocks.pk1', 'rb') as input:
+                blocks = pickle.load(input)
+            for blk in blocks:
+                for transactions in blk['transactions']:
+                    if addr in transactions:
+                        #print(transactions)
+                        if transactions.find(addr) < 20:
+                            balance -= int(transactions[:4], 16)
+                        elif transactions.find(addr) > 30:
+                            balance += int(transactions[:4], 16)
+        return jsonify({'balance': balance}), 201
+
+@node.route('/transaction/pendings', methods=['GET'])
+def get_transactions():
+    trxs = pending_pool.get_from_mem()
+    return jsonify({'trxs': trxs}), 201
+
+@node.route('/chain', methods=['GET'])
+def get_blocks():
+        if os.path.isfile('chain/blocks.pk1'):
+            with open('chain/blocks.pk1', 'rb') as input:
+                blocks = pickle.load(input)
+                '''blocks_to_send_json = []
+                for block in blocks:
+                    block = {'timestamp': str(block), 
+                    'previous_hash': block.previous_hash, 
+                    'transactions': block.transactions, 
+                    'm_root': block.m_root, 
+                    'hash_rez': block.hash_rez, 
+                    'nonce': str(block.nonce)}
+                    blocks_to_send_json.append(block)'''
+            return jsonify({'blocks': blocks}), 201
+        return jsonify({'blocks': []}), 201
+
+@node.route('/chain', methods=['POST'])
+def add_block():
+    blocks = request.get_json()['blocks']
+    with open('chain/blocks.pk1', 'wb') as output:
+        pickle.dump(blocks, output, pickle.HIGHEST_PROTOCOL)
+    print('block is added')
+    return jsonify({'success': True}), 201
 
 class Pitcoin:
-    '''
-        def broadcast(self, transaction):
-            try:
-                string = pending_pool.assept(transaction)
-                return string
-            except IndexError:
-                return 'Usage: broadcast <serialized transaction>'
-    '''    
     
 
     def get_transactions(self):
@@ -49,20 +91,6 @@ class Pitcoin:
             return blocks
         return []
         
-    def get_balance(self, addr):
-        balance = 0
-        if os.path.isfile('chain/blocks.pk1'):
-            with open('chain/blocks.pk1', 'rb') as input:
-                blocks = pickle.load(input)
-            for blk in blocks:
-                for transactions in blk['transactions']:
-                    if addr in transactions:
-                        print(transactions)
-                        if transactions.find(addr) < 20:
-                            balance -= int(transactions[:4], 16)
-                        elif transactions.find(addr) > 30:
-                            balance += int(transactions[:4], 16)
-        return balance
 
     def add_block(self, blocks):
         with open('chain/blocks.pk1', 'wb') as output:

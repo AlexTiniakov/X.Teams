@@ -5,8 +5,8 @@ from  block import Block
 from blockchain import Blockchain
 from transaction import CoinbaseTransaction
 import pickle
-
-server = xmlrpc.client.Server('http://localhost:8000')
+import requests
+from flask import json
 
 
 class Miner(cmd.Cmd):
@@ -19,27 +19,56 @@ class Miner(cmd.Cmd):
         trs = []
         f = open('address', 'r')
         addr = f.readline()
-        blocks = server.get_blocks()
-        #print(blocks)
+        blocks = requests.get('http://127.0.0.1:5000/chain')
+        blocks = json.loads(blocks.text)['blocks']
+        print(blocks)
         if len(blocks) == 0:
             blockch = Blockchain(addr)
             if blockch.g_block.mining(16):
                 blocks.append(blockch.g_block)
-                server.add_block(blocks)
-        
-        blocks = server.get_blocks()
-        #print(blocks)
-        trs = []
-        trs.append(CoinbaseTransaction(addr).ser)
-        new_trx = server.get_transactions()
-        for i in new_trx:
-            trs.append(i)
-        block_to_mine = Block(blocks[-1]['hash_rez'], trs)
-        if block_to_mine.mining(16):
-            blocks.append(block_to_mine)
-            server.add_block(blocks)
-            print(block_to_mine.hash_rez)
+                url  = 'http://127.0.0.1:5000/chain'
+                payload = {"blocks": self.to_json(blocks)}
+                headers = {"Content-Type": "application/json"}
+                res = requests.post(url, json=payload, headers=headers)
+                if json.loads(res.text)['success']:
+                    print(blockch.g_block.hash_rez)
+        else:
+            trs = []
+            trs.append(CoinbaseTransaction(addr).ser)
+            new_trx = requests.get('http://127.0.0.1:5000/transaction/pendings')
+            new_trx = json.loads(new_trx.text)['trxs']
+            for i in new_trx:
+                trs.append(i)
+            block_to_mine = Block(blocks[-1]['hash_rez'], trs)
+            if block_to_mine.mining(16):
+                blocks.append(block_to_mine)
+                url  = 'http://127.0.0.1:5000/chain'
+                payload = {"blocks": self.to_json(blocks)}
+                headers = {"Content-Type": "application/json"}
+                res = requests.post(url, json=payload, headers=headers)
+                if json.loads(res.text)['success']:
+                    print(block_to_mine.hash_rez)
 
+    def to_json(self, blocks):
+        blocks_to_send_json = []
+        for block in blocks:
+            if type(block)==Block:
+                block = {'timestamp': str(block.timestamp), 
+                'previous_hash': block.previous_hash, 
+                'transactions': block.transactions, 
+                'm_root': block.m_root, 
+                'hash_rez': block.hash_rez, 
+                'nonce': str(block.nonce)}
+            elif type(block)==dict:
+                block = {'timestamp': block['timestamp'], 
+                'previous_hash': block['previous_hash'], 
+                'transactions': block['transactions'], 
+                'm_root': block['m_root'], 
+                'hash_rez': block['hash_rez'], 
+                'nonce': block['nonce']}
+            blocks_to_send_json.append(block)
+        return blocks_to_send_json
+'''
     def do_find_new_chains():
         other_chains = []
         for node_url in self.PEER_NODES:
@@ -61,7 +90,7 @@ class Miner(cmd.Cmd):
         else:
             blocks = longest_chain
             return blocks
-        '''
+        
         f = open('chain/blockchain', 'a')
         try:
             blocks = f.readlines()
@@ -69,25 +98,7 @@ class Miner(cmd.Cmd):
         except:
             print('KO')
         f.close()
-        '''
+'''
 
 if __name__ == "__main__":
         Miner().cmdloop()
-    '''
-    f = open('address')
-    addr = f.readline()
-    print(addr)
-    BLOCKCHAIN = Blockchain(addr)
-    '''
-    '''
-    def get_blocks(self):
-            blocks = []
-            with open('chain/blocks.pk1', 'rb') as input:
-                blocks.append(pickle.load(input))
-            return blocks
-
-
-    def add_block(self, block):
-        with open('chain/blocks.pk1', 'wb') as output:
-            pickle.dump(block, output, pickle.HIGHEST_PROTOCOL)
-            '''

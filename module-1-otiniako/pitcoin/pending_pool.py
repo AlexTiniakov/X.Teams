@@ -55,6 +55,9 @@ def assept(ser):
     trx.append(del_zero(ser[202:]))
     #print('assert: ', trx[4])
     if validate(trx):
-        return add_to_mem(ser)
+        add_to_mem(ser)
+        return True
+    else:
+        return False
         
     
