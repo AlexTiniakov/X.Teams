@@ -32,7 +32,7 @@ class Transaction(object):
 class CoinbaseTransaction(Transaction):
 
     def __init__(self, recipient, amount=50):
-        super().__init__('0'*64, recipient, amount)
+        super().__init__('0'*35, recipient, amount)
         try:
             f = open('minerkey', 'r')
             pk = f.readline()

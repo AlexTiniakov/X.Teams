@@ -1,17 +1,11 @@
 from block import Block
-
+import pending_pool
 from transaction import Transaction, CoinbaseTransaction
 from serializer import Serializer
 
-class Blockchain(object):
-    BLOCKCHAIN = []
+class Blockchain():
 
-    def __init__(self, addr):
-        self.complexity = 2*8
-        self.g_block = self.genesis_block(addr)
-
-
-    def mine(self):
+    def mine(self, block):
         '''
         calls the mining method on the Block instance with passing the
         complexity parameter. At the class level, determine the value 2
@@ -20,7 +14,7 @@ class Blockchain(object):
         #self.block.mining(self.complexity)
         return
 
-    def resolve_conflicts(self):
+    def resolve_conflicts(self, blocks_my, blocks_other):
         '''
         resolve conflicts between blockchain's nodes by replacing
         our chain with the longest one in the network. We're only looking
@@ -30,7 +24,7 @@ class Blockchain(object):
         '''
         return
 
-    def is_valid_chain(self):
+    def is_valid_chain(self, blocks):
         '''
         loops over all the blocks in the chain and verify if they are properly
         linked together and nobody has tampered with the hashes. By checking
@@ -40,12 +34,12 @@ class Blockchain(object):
         '''
         return
 
-    def add_node(self):
+    def add_node(self, url):
         '''
         add a new node to the list of nodes, accepts an URL without scheme
         like ‘192.168.0.2:5000'
         '''
-        return
+        return url
 
     def genesis_block(self, addr):
         '''
@@ -60,4 +54,13 @@ class Blockchain(object):
         web api route for receiving transaction and push it to pending pool. The route is
         /transaction/new
         '''
-        return
+        try:
+            f = open('transaction/new', 'r')
+        except IOError:
+            return
+        mem = f.readlines()
+        f.close()
+        f = open('transaction/pending', 'a')
+        mem.split()
+        for i in mem:
+            return pending_pool.accept(i)

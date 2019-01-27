@@ -8,6 +8,7 @@ import pending_pool
 import binascii
 from pending_pool import show_mem, get_from_mem
 import xmlrpc.client
+import requests
 
 
 server = xmlrpc.client.Server('http://localhost:8000')
@@ -84,14 +85,23 @@ class Wallet(cmd.Cmd):
             print('Usage: send <% Recipient Address%>, <% Amount%>')
 
     def do_balance(self, line):
-        return
+        if len(line) > 0:
+            print(server.get_balance(line))
+        else:
+            print(server.get_balance(self.addr))
 
     def do_broadcast(self, line):
-        try:
-            print(server.broadcast(line))
-        except IndexError:
-            print('Usage: broadcast <serialized transaction>')
-
+        url     = 'http://127.0.0.1:5000/transaction/new'
+        payload = {"fransaction": line}
+        headers = {"Content-Type": "application/json"}
+        res = requests.post(url, json=payload, headers=headers)
+        print(res.text)
+    '''
+            try:
+                print(server.broadcast(line))
+            except IndexError:
+                print('Usage: broadcast <serialized transaction>')
+    '''
     def do_mempool(self, line):
         print(show_mem())
 

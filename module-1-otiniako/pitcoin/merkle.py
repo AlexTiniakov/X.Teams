@@ -1,7 +1,6 @@
 import hashlib
 
 def merkle_root(buf):
-    #print(buf, '\n')
     if len(buf)==1 and len(buf[0]) <= 64:
         return buf
     elif len(buf) % 2 == 1:
