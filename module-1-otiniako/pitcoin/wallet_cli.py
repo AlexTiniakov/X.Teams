@@ -14,7 +14,7 @@ from flask import json
 
 class Wallet(cmd.Cmd):
     privkey_WIF = '0'
-    
+    URL = 'http://127.0.0.1:5000'
     def do_save(self, line):
         f = open('minerkey', 'w')
         if self.privkey_WIF != '0':
@@ -68,7 +68,7 @@ class Wallet(cmd.Cmd):
         if len(line) == 2:
             try:
                 f = open('address', 'r')
-                self.addr = f.readline()
+                self.addr = f.readline().rstrip('\n')
                 tr = Transaction(self.addr, line[0], line[1])
                 tr.singin(self.privkey_hex)
                 trx = []
@@ -85,7 +85,7 @@ class Wallet(cmd.Cmd):
             print('Usage: send <% Recipient Address%>, <% Amount%>')
 
     def do_balance(self, line):
-        url     = 'http://127.0.0.1:5000/balance'
+        url     = self.URL+'/balance'
         if len(line) > 0:
             payload = {"addr": line}
         else:
@@ -96,18 +96,19 @@ class Wallet(cmd.Cmd):
         print(rez['balance'])
 
     def do_broadcast(self, line):
-        url     = 'http://127.0.0.1:5000/transaction/new'
-        payload = {"transaction": line}
-        headers = {"Content-Type": "application/json"}
-        res = requests.post(url, json=payload, headers=headers)
-        rez = json.loads(res.text)
-        print(rez['success'])
-    '''
-            try:
-                print(server.broadcast(line))
-            except IndexError:
-                print('Usage: broadcast <serialized transaction>')
-    '''
+        if len(line) > 0:
+            url     = self.URL+'/transaction/new'
+            payload = {"transaction": line}
+            headers = {"Content-Type": "application/json"}
+            res = requests.post(url, json=payload, headers=headers)
+            rez = json.loads(res.text)
+            if rez['success'] == True:
+                print('Transaction was added to mempool!')
+            else:
+                print('Error: wrong transaction')
+        else:
+            print("Usage: broadcast <%transaction%>")
+        
     def do_mempool(self, line):
         print(show_mem())
 
@@ -116,14 +117,6 @@ class Wallet(cmd.Cmd):
 
     def do_EOF(self, line):
         return True
-
-#to debug
-    def do_A(self, line):
-        self.do_import('privkey')
-
-    def do_B(self, line):
-        self.do_send('18B7K7Jnz9YeiPHKQq4ULKcrcQtQBcKUzq 1')
-        
 
 if __name__ == '__main__':
     Wallet().cmdloop()

@@ -1,6 +1,7 @@
 import hashlib
 import wallet as w
-from serializer import Serializer
+from serializer import Serializer, Deserializer
+from tx_validator import validate
 
 class Transaction(object):
 
@@ -21,25 +22,16 @@ class Transaction(object):
     def singin(self, privkey):
         self.sig, self.pubkey_sig = w.sign_message(privkey, self.hash256)
 
-    def to_serialize(self):
-        self.for_ser = []
-        self.for_ser.append(self.amount)
-        self.for_ser.append(self.sender)
-        self.for_ser.append(self.recipient)
-        self.for_ser.append(self.pubkey_sig)
-        self.for_ser.append(self.sig)
-
 class CoinbaseTransaction(Transaction):
 
     def __init__(self, recipient, amount=50):
         super().__init__('0'*35, recipient, amount)
         try:
             f = open('minerkey', 'r')
-            pk = f.readline()
+            pk = f.readline().rstrip('\n')
             pk_hex = w.decode_hex(pk)
             self.singin(pk_hex)
             self.ser = Serializer(self).ser
-
         except IOError:
             print("Error: can\'t find file or read data")
         

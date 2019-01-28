@@ -51,8 +51,6 @@ def decode_hex(pk):
         rez = "0" + rez
     return rez
 
-
-
 # Read private key from file in hex, return in base58check format
 def read_privkey(compress=0):
     try:
@@ -62,7 +60,6 @@ def read_privkey(compress=0):
     pk = f.readline()
     if compress==1:
         pk = pk + "01" 
-    print(pk)
     rez = decode_base58(pk)
     return rez
 
@@ -98,8 +95,6 @@ def pubkey_from_privkey(privkey, compress=0):
 
 # Get the public address from public key (in hex format).
 def addr_from_pubkey(pubkey):
-    if len(pubkey) % 2 == 1:
-            pubkey = "0" + pubkey
     h1 = hashlib.sha256(binascii.unhexlify(pubkey)).hexdigest()
     h2 = hashlib.new('ripemd160')
     h2.update(binascii.unhexlify(h1))
@@ -115,15 +110,12 @@ def sign_message(privkey, message):
     sk = SigningKey.from_string(binascii.unhexlify(privkey), curve=SECP256k1)
     vk = sk.get_verifying_key()
     pubkey_sig = binascii.hexlify(vk.to_string()).decode('utf-8')
-    sig = str(binascii.hexlify(sk.sign(bytes(message, 'ascii'))))
-    #print('sig  ', sig)
-    return sig[2:-1], pubkey_sig
+    sig = binascii.hexlify(sk.sign(bytes(message, 'ascii'))).decode('utf-8')
+    sig = binascii.hexlify(sk.sign(bytes(message, 'ascii'))).decode('utf-8')
+    return sig, pubkey_sig
 
 def check_sig(pubkey_sig, sig, message):
-    #print('check sig ', sig, '     ', len(sig))
-    sig = binascii.a2b_hex(sig) if len(sig) == 128 else binascii.a2b_hex(sig[2:len(sig)-1])
-    #print('check ', sig)
-    #print(sig)
+    sig = binascii.a2b_hex(sig)
     vk = VerifyingKey.from_string(bytes.fromhex(pubkey_sig), curve=ecdsa.SECP256k1)
     try:
         vk.verify(sig, bytes(message, 'ascii'))
@@ -131,21 +123,5 @@ def check_sig(pubkey_sig, sig, message):
     except BadSignatureError:
         print('Error: Bad signature!')
         return False
-
-
-if __name__ == "__main__":
-    #read_key = read_privkey()
-    #print(read_key)
-    #privkey = 38090835015954358862481132628887443905906204995912378278060168703580660294000
-    privkey = 'ba4162c7251c891207b747840551a71939b0de081f85c4e44cf7c13e41daa6'
-    print(privkey)
-    print(decode_base58(privkey))
-    print(decode_hex(decode_base58(privkey)))
-    #sig, pubkey = sign_message(privkey, "hello")
-    #print(check_sig(pubkey, sig, "hello"))
-    #privkey = random_privkey()
-    #pubkey = pubkey_from_privkey(privkey, 1)
-    #print(pubkey)
-    #print(addr_from_privkey(privkey))
 
     
