@@ -1,0 +1,23 @@
+<html>
+        <style type="text/css">
+            .block {
+                background: #f6f6ff;
+            }
+            block:empty {
+            display: none;
+            }
+           </style>
+
+    <div class="block" id="transaction">
+            <h1>Transaction:</h1>
+            <h3>Hash: {{ trx.hash }}</h3>
+            {% for input in trx.inputs %}
+            {% if input.txouthash == "0000000000000000000000000000000000000000000000000000000000000000" %}
+            <h3>Inputs: Coinbase transaction</h3>
+            {% endif %}
+            {% if input.txouthash != "0000000000000000000000000000000000000000000000000000000000000000"%}
+            
+            {% endif %}
+            {% endfor %}
+    </div>
+</html>

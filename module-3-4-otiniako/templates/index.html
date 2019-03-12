@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en", >
+  <head>
+    <title>Python Flask Bucket List App</title>
+  </head>
+ 
+  <body>
+        <style type="text/css">
+            input { 
+             font-size: 100%; 
+             font-family: Verdana, Arial, Helvetica, sans-serif; 
+             color: #333366;
+             width: 500px;
+            }
+            .block {
+                background: #f6f6ff;
+            }
+            block:empty {
+            display: none;
+            }
+           </style>
+
+<script>
+    window.onload = function () {
+
+        document.getElementById("search").onclick = function () {
+
+            document.getElementById("block").innerHTML = '';
+            document.getElementById("transaction").innerHTML = '';
+            document.getElementById("address").innerHTML = '';
+
+            text = document.getElementById("info").value;
+            route = "/search?info=" + text;
+            var xhr = new XMLHttpRequest();          // Создание объекта для HTTP запроса.
+            xhr.open("GET", route, false);  // Настройка объекта для отправки асинхронного GET запроса
+
+            // функция-обработчик срабатывает при изменении свойства readyState
+            // Значения свойства readyState:
+            // 0 - Метод open() еще не вызывался
+            // 1 - Метод open() уже был вызван, но метод send() еще не вызывался.
+            // 2 - Метод send() был вызван, но ответ от сервера еще не получен
+            // 3 - Идет прием данных от сервера. Для значения 3 Firefox вызывает обработчик события несколько раз IE только один раз.
+            // 4 - Ответ от сервера полностью получен (Запрос успешно завершен).
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) { // если получен ответ
+                    if (xhr.status == 201) { // и если статус код ответа 200
+                        //var obj = JSON.parse(xhr.responseText);
+                        //document.getElementById("hash").innerHTML = obj.block.hash_rez;
+                        document.getElementById("block").innerHTML = xhr.responseText; // responseText - текст ответа полученного с сервера.
+                    }
+
+                    if (xhr.status == 202) { // и если статус код ответа 200
+                        //var obj = JSON.parse(xhr.responseText);
+                        //document.getElementById("hash").innerHTML = obj.block.hash_rez;
+                        document.getElementById("transaction").innerHTML = xhr.responseText; // responseText - текст ответа полученного с сервера.
+                    }
+
+                    if (xhr.status == 203) { // и если статус код ответа 200
+                        //var obj = JSON.parse(xhr.responseText);
+                        //document.getElementById("hash").innerHTML = obj.block.hash_rez;
+                        document.getElementById("address").innerHTML = xhr.responseText; // responseText - текст ответа полученного с сервера.
+                    }
+
+                    if (xhr.status == 200) { // и если статус код ответа 200
+                        //var obj = JSON.parse(xhr.responseText);
+                        //document.getElementById("hash").innerHTML = obj.block.hash_rez;
+                        document.getElementById("block").innerHTML = "Not found!!!"; // responseText - текст ответа полученного с сервера.
+                    }
+                }
+            }
+            
+            xhr.send();                              // Отправка запроса, так как запрос асинхронный сценарий продолжит свое выполнение. Когда с сервера придет ответ сработает событие onreadystatechange
+        }
+    }
+</script>
+ 
+    <div class="container">
+      <div class="header">
+        <h1>Pitcoin blockchain explorer</h1>
+      </div>
+ 
+      <div>
+        <h3>What are you loocking for?</h3>
+        <form class="form-search">
+        <input type="text" name="info" id="info" class="form-control" placeholder="Search for block height, hash, transaction or address" required autofocus> 
+        <button id="search" class="btn btn-lg btn-primary btn-block" type="button">Search</button>
+      </form>
+      </div>
+
+      <div class="block" id="transaction"></div>
+      <div class="block" id="block"></div>
+      <div class="block" id="address"></div>
+ 
+       
+ 
+      <footer class="footer">
+        <p>&copy; Pitcoin 2019</p>
+      </footer>
+ 
+    </div>
+  </body>
+</html>
